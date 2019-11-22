@@ -1,0 +1,53 @@
+{
+  "license": "MIT",
+  "devDependencies": {
+    "@types/d3": "^5.7.2",
+    "@types/topojson-client": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.8.0",
+    "@typescript-eslint/parser": "^2.8.0",
+    "d3": "^5.14.1",
+    "del-cli": "^3.0.0",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.4.3",
+    "parcel-bundler": "^1.12.4",
+    "prettier-standard": "^15.0.1",
+    "standardx": "^5.0.0",
+    "topojson-client": "^3.1.0",
+    "typescript": "^3.7.2"
+  },
+  "scripts": {
+    "clean": "del 'src/**/*.js'",
+    "format": "prettier-standard '{src,test,scripts}/**/*.{js,jsx,ts,tsx}'",
+    "lint": "standardx '{src,test,scripts}/**/*.{js,jsx,ts,tsx}' --fix",
+    "start": "parcel src/index.html"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "{src,test,scripts}/**/*.{js,jsx,ts,tsx}": [
+      "yarn format",
+      "yarn lint",
+      "git add"
+    ]
+  },
+  "eslintConfig": {
+    "rules": {
+      "no-unused-vars": 0
+    }
+  },
+  "standardx": {
+    "env": [
+      "browser"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ],
+    "ignore": [
+      "**/*.d.ts"
+    ]
+  }
+}
