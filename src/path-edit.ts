@@ -14,12 +14,14 @@ import d3 = require('d3')
 
 export type CreateSnapperOpts = {
   dispatch: Dispatch
+  onAddNode: () => void
   path$: D3Path
   state: State
   svg$: D3SVG
 }
 export const createNodeSnapper = ({
   dispatch,
+  onAddNode,
   path$,
   state,
   svg$
@@ -36,7 +38,7 @@ export const createNodeSnapper = ({
   )
   svg$.on('click', () => {
     if (!state.nodePlacementCandidate || !state.isNodeAddEnabled) return
-    dispatch({ type: 'PromoteNodePlacementCandidatePoint' })
+    onAddNode()
   })
   return () => {
     svg$.on('click', null)
@@ -178,6 +180,7 @@ export const appendPath = ({
           if (state.nodeSnapperUnsubscribe) state.nodeSnapperUnsubscribe()
           state.nodeSnapperUnsubscribe = createNodeSnapper({
             dispatch,
+            onAddNode: () => dispatch({ type: 'PromoteNodePlacementCandidatePoint' }),
             path$: state.path$,
             svg$: state.svg$,
             state
