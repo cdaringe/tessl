@@ -1,0 +1,8 @@
+node_modules
+.cache
+dist
+test.bundle.js
+*.log
+bundle.test.js
+src/**/*.js
+test/**/*.js

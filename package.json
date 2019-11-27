@@ -1,0 +1,62 @@
+{
+  "license": "MIT",
+  "devDependencies": {
+    "@types/blue-tape": "^0.1.33",
+    "@types/d3": "^5.7.2",
+    "@types/lodash": "^4.14.149",
+    "@typescript-eslint/eslint-plugin": "^2.8.0",
+    "@typescript-eslint/parser": "^2.8.0",
+    "blue-tape": "^1.0.0",
+    "d3": "^5.14.1",
+    "del-cli": "^3.0.0",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.4.3",
+    "parcel-bundler": "^1.12.4",
+    "prettier-standard": "^15.0.1",
+    "standardx": "^5.0.0",
+    "testem": "^3.0.1",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  },
+  "scripts": {
+    "bundle:test": "webpack --mode=development",
+    "clean": "del 'src/**/*.js'",
+    "format": "prettier-standard '{src,test,scripts}/**/*.{js,jsx,ts,tsx}'",
+    "lint": "standardx '{src,test,scripts}/**/*.{js,jsx,ts,tsx}' --fix",
+    "start": "parcel src/index.html",
+    "test": "npx testem ci --launch chrome"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "{src,test,scripts}/**/*.{js,jsx,ts,tsx}": [
+      "yarn format",
+      "yarn lint",
+      "git add"
+    ]
+  },
+  "eslintConfig": {
+    "rules": {
+      "no-unused-vars": 0
+    }
+  },
+  "standardx": {
+    "env": [
+      "browser"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ],
+    "ignore": [
+      "**/*.d.ts"
+    ]
+  },
+  "dependencies": {
+    "lodash": ">=4"
+  }
+}
