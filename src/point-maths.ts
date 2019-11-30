@@ -1,6 +1,7 @@
-import { Point, State, Dispatch, D3SVG } from './interfaces'
+import { Point, State, Dispatch, D3SVG, MetaPoint } from './interfaces'
 import d3 = require('d3')
 import debounce from 'lodash/debounce'
+import { toPointRef } from './path-edit'
 
 function distance (p1: Point, p2: Point) {
   var dx = p2[0] - p1[0]
@@ -28,15 +29,15 @@ const isNear = (p1: Point, p2: Point, px: number = 1) =>
  */
 export function insertPointBetweenBounds ({
   initialPathLength,
-  pathPoints,
   pathNode,
+  pathPoints,
   selectedPoint
 }: {
-  pathPoints: Point[]
   initialPathLength: number
   pathNode: SVGPathElement
+  pathPoints: MetaPoint[]
   selectedPoint: Point
-}): Point[] {
+}): MetaPoint[] {
   if (!pathPoints.length || pathPoints.length < 2)
     throw new Error('not enough points')
   const derivedPoint = pathNode.getPointAtLength(initialPathLength)
@@ -51,15 +52,17 @@ export function insertPointBetweenBounds ({
   }
   let currentLength = initialPathLength
   while (true) {
-    const currentPoint = pathNode.getPointAtLength(currentLength)
-    const distancesToPoint = pathPoints.map(pp =>
-      distance(pp, [currentPoint.x, currentPoint.y])
-    )
+    const { x, y } = pathNode.getPointAtLength(currentLength)
+    const distancesToPoint = pathPoints.map(mp => distance(mp.point, [x, y]))
     const minTravelToNextPoint = Math.min(...distancesToPoint)
     if (minTravelToNextPoint < 1) {
       const i = distancesToPoint.findIndex(d => d === minTravelToNextPoint)
       const nextPathPoints = [...pathPoints]
-      nextPathPoints.splice(i, 0, selectedPoint)
+      const nexPoint: MetaPoint = {
+        point: selectedPoint,
+        ref: toPointRef(selectedPoint),
+      }
+      nextPathPoints.splice(i, 0, nexPoint)
       return nextPathPoints
     }
     currentLength += minTravelToNextPoint

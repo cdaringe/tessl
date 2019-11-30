@@ -14,10 +14,10 @@ export const onStateChange = (state: State) => {
     }
     const pointsNode = window.document.getElementById('points')!
     pointsNode.innerHTML = ''
-    stateToPaint.points.forEach(point => {
+    stateToPaint.metaPoints.forEach(mp => {
       const li = document.createElement('li')
       const pre = document.createElement('pre')
-      pre.innerText = point.map(toFourChars).join(', ')
+      pre.innerText = mp.point.map(toFourChars).join(', ')
       li.appendChild(pre)
       pointsNode.appendChild(li)
     })

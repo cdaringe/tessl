@@ -12,17 +12,19 @@ import {
 } from './interfaces'
 import d3 = require('d3')
 
+export const toPointRef = ([x, y]: Point) => `${x.toFixed(3)}_${y.toFixed(3)}`
+
 export type CreateSnapperOpts = {
   dispatch: Dispatch
   onAddNode: () => void
-  path$: D3Path
+  getPath$: () => D3Path
   state: State
   svg$: D3SVG
 }
 export const createNodeSnapper = ({
   dispatch,
   onAddNode,
-  path$,
+  getPath$,
   state,
   svg$
 }: CreateSnapperOpts) => {
@@ -30,7 +32,7 @@ export const createNodeSnapper = ({
     'mousemove',
     createMouseMoveHandler({
       dispatch,
-      path: path$.node()!,
+      path: getPath$().node()!,
       snapperDot: appendCircle({ x: -10, y: -10, node$: svg$ }),
       snapperLine: svg$.append('line'),
       state
@@ -70,23 +72,23 @@ export const createSvg = (width: number, height: number): SVGElement =>
     .node()!
 
 export const createNodeDragger = ({
-  pointIndex,
-  pointCircle$,
+  circle$,
   onDrag,
   onDragEnd,
-  onDragStart
+  onDragStart,
+  pointIndex,
 }: {
-  pointIndex: number
-  pointCircle$: D3Circle
-  onDragStart: (pointIndex: number) => void
+  circle$: D3Circle
   onDrag: (opts: NodeMove) => void
   onDragEnd: (pointIndex: number) => void
+  onDragStart: (pointIndex: number) => void
+  pointIndex: number
 }) => {
-  ;(pointCircle$ as any).call(
+  ;(circle$ as any).call(
     d3
       .drag()
       .on('start', d => {
-        pointCircle$.attr('stroke', 'black')
+        circle$.attr('stroke', 'black')
         onDragStart(pointIndex)
       })
       .on('drag', d => {
@@ -94,7 +96,7 @@ export const createNodeDragger = ({
         onDrag({ pointIndex, x, y })
       })
       .on('end', d => {
-        pointCircle$.attr('stroke', null)
+        circle$.attr('stroke', null)
         onDragEnd(pointIndex)
       })
   )
@@ -105,7 +107,6 @@ export const appendPath = ({
   canEditPoint,
   onStateChange,
   points,
-  showNodes,
   svg$
 }: CreateScene) => {
   const state: State = {
@@ -113,75 +114,79 @@ export const appendPath = ({
     isNodeAddEnabled: false,
     nodePlacementCandidate: null,
     path$: null,
-    pointCircles: showNodes
-      ? []
-      : points.map(([x, y]) => appendCircle({ x, y, node$: svg$ })),
-    points,
+    metaPoints: points.map(point => {
+      const [ x, y ] = point
+      return {
+        circle$: appendCircle({ x, y, node$: svg$ }),
+        point,
+        ref: toPointRef(point)
+      }
+    }),
     svg$
   }
   const dispatch: Dispatch = msg => {
     const updateState: () => State = () => {
       console.log(msg.type)
       switch (msg.type) {
-        case 'AppendCirclesToNodes': {
-          if (showNodes) {
-            state.pointCircles = state.points.map(([x, y]) =>
-              appendCircle({ x, y, node$: state.svg$ })
-            )
-          }
+        case 'AppendPointCircles': {
+          state.metaPoints.forEach(mp => {
+            if (mp.circle$) return
+            const [ x, y ] = mp.point
+            mp.circle$ = appendCircle({ x, y, node$: state.svg$ })
+          })
           return state
         }
         case 'BindNodeDragHandlers': {
-          state.points.forEach((point, i) => {
-            if (canEditPoint) {
-              if (!canEditPoint(state, point, i)) return
-            }
-            const pointCircle$ = state.pointCircles![i]
+          state.metaPoints.forEach((mp, i) => {
+            const { circle$, isDragHandlerBound, point, ref } = mp
+            if (isDragHandlerBound || !circle$) return
+            if (canEditPoint && !canEditPoint(state, point, i)) return
+            mp.isDragHandlerBound = true
             createNodeDragger({
-              pointCircle$,
+              circle$,
               pointIndex: i,
-              onDragStart: pointIndex => {
-                state.draggedNodeStartPoint = [
-                  points[pointIndex][0],
-                  points[pointIndex][1]
-                ]
-              },
+              onDragStart: pointIndex =>
+                (state.draggedNodeStartPoint = points[pointIndex]),
               onDrag: value => dispatch({ type: 'MoveNodePosition', value }),
               onDragEnd: pointIndex => {
-                const currentPoint = state.points[pointIndex]
+                const metaPoint = state.metaPoints[pointIndex]
+                const currentPoint = metaPoint.point
                 const startPoint = state.draggedNodeStartPoint!
                 delete state.draggedNodeStartPoint
                 // dangerously swap old point value in just for a hot second,
                 // as the drag operation has already updated our point array and
                 // we want to update history reflecting the start point
-                state.points[pointIndex] = startPoint
+                metaPoint.point = startPoint
                 dispatch({ type: 'UpdatePointHistory' })
-                state.points[pointIndex] = currentPoint
+                metaPoint.point = currentPoint
                 // phew! sorry.  that was gross.
               }
             })
-            pointCircle$.on('mouseenter', () => {
-              pointCircle$.attr('stroke', '#ccc').attr('stroke-width', 3)
+            circle$.on('mouseenter', () => {
+              circle$.attr('stroke', '#ccc').attr('stroke-width', 3)
               dispatch({ type: 'DisableNodePlacement' })
             })
-            pointCircle$.on('mouseout', () => {
-              pointCircle$.attr('stroke', null).attr('stroke-width', null)
+            circle$.on('mouseout', () => {
+              circle$.attr('stroke', null).attr('stroke-width', null)
             })
           })
           return state
         }
         case 'ClearCirclesFromNodes': {
-          state.pointCircles &&
-            state.pointCircles.forEach(circle$ => circle$.remove())
+          state.metaPoints.forEach(mp => {
+            mp.circle$ && mp.circle$.remove()
+            mp.isDragHandlerBound = false // @todo improve handler unsubscription
+          })
           return state
         }
         case 'CreateNodeSnapper': {
           if (!state.path$) return state
-          if (state.nodeSnapperUnsubscribe) state.nodeSnapperUnsubscribe()
+          if (state.nodeSnapperUnsubscribe) return state
           state.nodeSnapperUnsubscribe = createNodeSnapper({
             dispatch,
-            onAddNode: () => dispatch({ type: 'PromoteNodePlacementCandidatePoint' }),
-            path$: state.path$,
+            onAddNode: () =>
+              dispatch({ type: 'PromoteNodePlacementCandidatePoint' }),
+            getPath$: () => state.path$!,
             svg$: state.svg$,
             state
           })
@@ -195,7 +200,7 @@ export const appendPath = ({
         case 'DrawPath': {
           if (state.path$) state.path$.remove()
           state.path$ = appendPathToSvg({
-            points: state.points,
+            points: state.metaPoints.map(m => m.point),
             svg$: state.svg$
           })
           return state
@@ -206,7 +211,7 @@ export const appendPath = ({
         }
         case 'MoveNodePosition': {
           const { pointIndex, x, y } = msg.value
-          const movedPoint = state.points[pointIndex]
+          const movedPoint = state.metaPoints[pointIndex].point
           if (movedPoint) {
             movedPoint[0] = x
             movedPoint[1] = y
@@ -219,9 +224,9 @@ export const appendPath = ({
           dispatch({ type: 'UpdatePointHistory' })
           const { point, length } = state.nodePlacementCandidate!
           dispatch({ type: 'DisableNodePlacement' })
-          state.points = insertPointBetweenBounds({
+          state.metaPoints = insertPointBetweenBounds({
             pathNode: state.path$.node()!,
-            pathPoints: state.points,
+            pathPoints: state.metaPoints,
             selectedPoint: point,
             initialPathLength: length
           })
@@ -230,12 +235,12 @@ export const appendPath = ({
         }
         case 'UndoPointChange': {
           if (!state.history.length) return state
-          state.points = JSON.parse(state.history.pop()!)
+          state.metaPoints = JSON.parse(state.history.pop()!)
           dispatch({ type: 'RepaintAll' })
           return state
         }
         case 'UpdatePointHistory': {
-          state.history.push(JSON.stringify(state.points))
+          state.history.push(JSON.stringify(state.metaPoints))
           if (state.history.length > 25) state.history.shift()
           return state
         }
@@ -247,7 +252,7 @@ export const appendPath = ({
         }
         case 'RepaintNodeCircles': {
           dispatch({ type: 'ClearCirclesFromNodes' })
-          dispatch({ type: 'AppendCirclesToNodes' })
+          dispatch({ type: 'AppendPointCircles' })
           dispatch({ type: 'BindNodeDragHandlers' })
           return state
         }
@@ -256,7 +261,6 @@ export const appendPath = ({
           return state
         }
       }
-      return state
     }
     const nextState = updateState()
     onStateChange && onStateChange(nextState)

@@ -25,16 +25,15 @@ let undoEditNode: null | (() => void) = null
 
 const path$ = appendPath({
   canEditPoint: (state, _, i) => {
-    return !(i === 0 || state.points.length - 1 == i)
+    return !(i === 0 || state.metaPoints.length - 1 == i)
   },
   onStateChange: state => {
-    onStateChange(state)
+    // onStateChange(state)
   },
   bindUndo: dispatchUndo => {
     undoEditNode = dispatchUndo
   },
   points,
-  showNodes: true,
   svg$
 })
 

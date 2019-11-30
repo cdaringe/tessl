@@ -8,7 +8,6 @@ export type AppendCircleOptions = {
 export type CreateScene = {
   onStateChange?: (state: State) => void
   points: Point[]
-  showNodes?: boolean
   svg$: D3SVG
   canEditPoint?: (state: State, point: Point, pointIndex: number) => boolean
   bindUndo?: (undo: () => void) => void
@@ -22,6 +21,13 @@ export type D3Circle = d3.Selection<SVGCircleElement, any, any, any>
 
 export type Point = [number, number]
 
+export type MetaPoint = {
+  circle$?: D3Circle
+  isDragHandlerBound?: boolean
+  ref: string
+  point: Point
+}
+
 export type State = {
   history: string[]
   isNodeAddEnabled: boolean
@@ -29,14 +35,13 @@ export type State = {
   nodeSnapperUnsubscribe?: () => void
   draggedNodeStartPoint?: Point
   path$: D3Path | null
-  pointCircles: null | D3Circle[]
-  points: Point[]
+  metaPoints: MetaPoint[]
   svg$: D3SVG
 }
 
 export type NodeMove = { pointIndex: number; x: number; y: number }
 export type Msg =
-  | { type: 'AppendCirclesToNodes' }
+  | { type: 'AppendPointCircles' }
   | { type: 'BindNodeDragHandlers' }
   | { type: 'ClearCirclesFromNodes' }
   | { type: 'CreateNodeSnapper' }
