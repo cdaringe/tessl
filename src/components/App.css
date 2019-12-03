@@ -26,6 +26,14 @@ circle {
   fill: red;
 }
 
+circle:hover {
+  fill: darkred;
+}
+
+.snapper {
+  fill: blue;
+}
+
 rect {
   fill: none;
   cursor: crosshair;

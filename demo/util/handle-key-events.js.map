@@ -1,0 +1,1 @@
+{"version":3,"file":"handle-key-events.js","sourceRoot":"","sources":["handle-key-events.ts"],"names":[],"mappings":";;AAAA,yCAAoC;AAEvB,QAAA,aAAa,GAAG,UAAC,EAAkC;QAAhC,kBAAM;IACpC,MAAM,CAAC,SAAS,GAAG,UAAC,GAAkB;QACpC,IAAI,kBAAM,CAAC,GAAG,EAAE,KAAK,CAAC;YAAE,MAAM,EAAE,CAAA;IAClC,CAAC,CAAA;AACH,CAAC,CAAA"}
