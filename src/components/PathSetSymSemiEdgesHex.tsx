@@ -1,15 +1,18 @@
 import React from 'react'
 import { BasePath } from './BasePath'
 import { WithOnStateChange, WithSvg } from './interfaces'
+import { Point } from 'd3-svg-path-editor'
 
 const fiver = [0, 0, 0, 0, 0]
 
 export function PathSetSymSemiEdgesHex ({
   length,
   onStateChange,
+  initialPoints,
   svg
 }: {
   length: number
+  initialPoints?: Point[]
 } & WithSvg &
   WithOnStateChange) {
   const hexTranslator = `translate(${length} 0) rotate(-60 ${-length / 2} 0) `
@@ -19,7 +22,7 @@ export function PathSetSymSemiEdgesHex ({
         <BasePath
           {...{
             id: 'node1',
-            initialPoints: [[-(length / 2), 0], [0, 0]],
+            initialPoints: initialPoints || [[-(length / 2), 0], [0, 0]],
             svg,
             stroke: 'black',
             fill: 'none',

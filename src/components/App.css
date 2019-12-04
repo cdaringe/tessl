@@ -39,3 +39,8 @@ rect {
   cursor: crosshair;
   pointer-events: all;
 }
+
+svg {
+  width: min(100vh, 100vw);
+  height: min(100vh, 100vw);
+}
