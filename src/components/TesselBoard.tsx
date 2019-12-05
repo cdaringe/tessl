@@ -1,8 +1,9 @@
 import React from 'react'
-import { PathSetSimpleHex } from './PathSetSimpleHex'
 import { PathSetSymSemiEdgesHex } from './PathSetSymSemiEdgesHex'
 import { Point, OnStateChange } from 'd3-svg-path-editor'
 import debounce from 'lodash/debounce'
+import { range } from 'd3'
+// import { PathSetSimpleHex } from './PathSetSimpleHex'
 
 type Props = {}
 type State = {
@@ -11,6 +12,9 @@ type State = {
 }
 
 const RAD_THIRTY_DEG = (Math.PI * 30) / 180
+const RAD_SIXTY_DEG = RAD_THIRTY_DEG * 2
+const NUM_UNITS = 8
+const NUM_UNITS_CENTER = Math.ceil(NUM_UNITS / 2)
 
 const isEven = (x: number) => x % 2 === 0
 
@@ -97,8 +101,9 @@ export class TesselBoard extends React.PureComponent<Props, State> {
       onNextPoints,
       state: { points }
     } = this
-    const yy = length / (2 * Math.tan(RAD_THIRTY_DEG))
-    const xx = yy / Math.tan(RAD_THIRTY_DEG)
+    const yy = length / 2 / Math.tan(RAD_THIRTY_DEG)
+    const height = 2 * yy
+    const xx = length + length * Math.cos(RAD_SIXTY_DEG)
     return (
       <svg ref={this.svgNode} viewBox='-300 -300 600 600'>
         <g id='gg'>
@@ -112,32 +117,20 @@ export class TesselBoard extends React.PureComponent<Props, State> {
             }}
           />
         </g>
-        {[
-          [-1, 1],
-          [-1, -1],
-          [0, 1],
-          [0, -1],
-          [0, 2],
-          [0, -2],
-          [1, 1],
-          [1, -1],
-          [1, 2],
-          [1, -2],
-          [2, 0],
-          [2, 1],
-          [2, -1]
-        ].map(([x, y]) => {
-          const yOffset = !isEven(x) ? 0 : yy
-          return (
-            <use
-              key={`${x}${y}`}
-              href='#gg'
-              transform={`translate(${xx * x}, ${y * yOffset +
-                yy * (y * (y % 2 ? 1 : 2))})`}
-            />
-          )
-        })}
-
+        {range(NUM_UNITS).map(_x =>
+          range(NUM_UNITS).map(_y => {
+            const x = _x - NUM_UNITS_CENTER
+            const y = _y - NUM_UNITS_CENTER
+            const yOffset = isEven(x) ? 0 : yy
+            return (
+              <use
+                key={`${x}${y}`}
+                href='#gg'
+                transform={`translate(${xx * x}, ${yOffset + height * y})`}
+              />
+            )
+          })
+        )}
         {/* <use href='#gg' transform={`translate(-150, ${yy})`} />
         <use href='#gg' transform={`translate(-150, ${-yy})`} />
         <use href='#gg' transform={`translate(150, ${yy})`} />
