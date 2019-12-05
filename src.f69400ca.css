@@ -1,0 +1,56 @@
+body {
+  background: linear-gradient(#9efffd, #7f6fff);
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+#app, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+#points {
+  list-style: none;
+  position: fixed;
+  right: 10px;
+  text-align: right;
+  top: 10px;
+  z-index: -1;
+}
+path {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+line {
+  fill: none;
+  stroke: red;
+  stroke-width: 1.5px;
+}
+
+circle {
+  fill: red;
+}
+
+circle:hover {
+  fill: darkred;
+}
+
+.snapper {
+  fill: blue;
+}
+
+rect {
+  fill: none;
+  cursor: crosshair;
+  pointer-events: all;
+}
+
+svg {
+  height: 100%;
+  width: 100%;
+}
+
+
+/*# sourceMappingURL=/src.f69400ca.css.map */

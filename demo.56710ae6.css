@@ -1,0 +1,44 @@
+body {
+  background: linear-gradient(darkgray, gray);
+  height: 100vh;
+}
+#points {
+  list-style: none;
+  position: fixed;
+  right: 10px;
+  text-align: right;
+  top: 10px;
+  z-index: -1;
+}
+path {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+line {
+  fill: none;
+  stroke: red;
+  stroke-width: 1.5px;
+}
+
+circle {
+  fill: red;
+}
+
+circle:hover {
+  fill: darkred;
+}
+
+.snapper {
+  fill: blue;
+}
+
+rect {
+  fill: none;
+  cursor: crosshair;
+  pointer-events: all;
+}
+
+
+/*# sourceMappingURL=/demo.56710ae6.css.map */
