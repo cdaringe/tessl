@@ -20,7 +20,7 @@ jobs:
     - name: lint
       run: yarn lint
     - name: build
-      run: yarn build -p tsconfig.prod.json
+      run: yarn build
     - name: test
       run: yarn test
     - name: commitlint
@@ -29,17 +29,6 @@ jobs:
       run: |
         git config --local user.email "cdaringe@cdaringe.com"
         git config --local user.name "cdaringe"
-    - name: release
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: |
-        if [[ "$GITHUB_REF" = "refs/heads/master" ]]; then
-          GITHUB_TOKEN=$GH_TOKEN npx semantic-release --verbose
-          yarn build:demo
-        else
-          echo "skipping release on branch $GITHUB_REF"
-        fi
     - name: gh-pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
