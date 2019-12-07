@@ -18,7 +18,6 @@
     "rollup": "^1.27.6",
     "rollup-plugin-typescript": "^1.0.1",
     "standardx": "^5.0.0",
-    "testem": "^3.0.1",
     "typescript": "^3.7.2",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
@@ -31,7 +30,7 @@
     "format": "prettier-standard '{src,test,scripts}/**/*.{js,jsx,ts,tsx}'",
     "lint": "standardx '{src,test,scripts}/**/*.{js,jsx,ts,tsx}' --fix",
     "start": "parcel src/index.html",
-    "test": "npx testem ci"
+    "test": "echo skip"
   },
   "husky": {
     "hooks": {
