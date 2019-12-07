@@ -1,7 +1,7 @@
 import React from 'react'
 import { BasePath } from './BasePath'
 import { WithOnStateChange, WithSvg } from './interfaces'
-import { Point } from 'd3-svg-path-editor'
+import { Point } from '@dino-dna/d3-svg-path-editor'
 
 const fiver = [0, 0, 0, 0, 0]
 

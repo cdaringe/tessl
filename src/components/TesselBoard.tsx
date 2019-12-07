@@ -1,14 +1,16 @@
 import React from 'react'
 import { PathSetSymSemiEdgesHex } from './PathSetSymSemiEdgesHex'
-import { Point, OnStateChange } from 'd3-svg-path-editor'
+import { Point, OnStateChange, MetaNode } from '@dino-dna/d3-svg-path-editor'
 import debounce from 'lodash/debounce'
 import { range } from 'd3'
-// import { PathSetSimpleHex } from './PathSetSimpleHex'
 
-type Props = {}
+type Props = {
+  onNodesChange?: (nodes: MetaNode[]) => void
+}
 type State = {
   ok: boolean
   points?: Point[]
+  metaNodes?: MetaNode[]
 }
 
 const RAD_THIRTY_DEG = (Math.PI * 30) / 180
@@ -16,10 +18,26 @@ const RAD_SIXTY_DEG = RAD_THIRTY_DEG * 2
 const NUM_UNITS = 8
 const NUM_UNITS_CENTER = Math.ceil(NUM_UNITS / 2)
 
+const units = range(NUM_UNITS).reduce(
+  (acc, x) => [...acc, ...range(NUM_UNITS).map(y => [x, y] as Point)],
+  [] as Point[]
+)
+
+const settlers: Point[] = [
+  ...(range(3).map(y => [-2, y - 1]) as Point[]),
+  ...(range(4).map(y => [-1, y - 1]) as Point[]),
+  ...(range(5)
+    .map(y => (y - 2 === 0 ? null : [0, y - 2]))
+    .filter(i => i) as Point[]),
+  ...(range(4).map(y => [1, y - 1]) as Point[]),
+  ...(range(3).map(y => [2, y - 1]) as Point[])
+]
+
 const isEven = (x: number) => x % 2 === 0
 
 export class TesselBoard extends React.PureComponent<Props, State> {
   private svgNode: React.RefObject<any>
+  private Viewer: any
   constructor (props: Props) {
     super(props)
     this.svgNode = React.createRef()
@@ -76,11 +94,12 @@ export class TesselBoard extends React.PureComponent<Props, State> {
   }
 
   onNextPoints: OnStateChange = debounce(
-    metaPoints => {
-      const points = metaPoints.map(mp =>
+    metaNodes => {
+      const points = metaNodes.map(mp =>
         mp.point.map(i => parseFloat(i.toFixed(2)))
       ) as Point[]
-      this.setState({ points })
+      this.setState({ points, metaNodes })
+      if (this.props.onNodesChange) this.props.onNodesChange(metaNodes)
       if (history.pushState) {
         var newurl =
           window.location.protocol +
@@ -105,7 +124,7 @@ export class TesselBoard extends React.PureComponent<Props, State> {
     const height = 2 * yy
     const xx = length + length * Math.cos(RAD_SIXTY_DEG)
     return (
-      <svg ref={this.svgNode} viewBox='-300 -300 600 600'>
+      <svg id='tesselboard' ref={this.svgNode} viewBox='-400 -400 800 800'>
         <g id='gg'>
           {/* <PathSetSimpleHex {...{ svg: this.svgNode.current!, length }} /> */}
           <PathSetSymSemiEdgesHex
@@ -117,24 +136,22 @@ export class TesselBoard extends React.PureComponent<Props, State> {
             }}
           />
         </g>
-        {range(NUM_UNITS).map(_x =>
-          range(NUM_UNITS).map(_y => {
-            const x = _x - NUM_UNITS_CENTER
-            const y = _y - NUM_UNITS_CENTER
-            const yOffset = isEven(x) ? 0 : yy
-            return (
-              <use
-                key={`${x}${y}`}
-                href='#gg'
-                transform={`translate(${xx * x}, ${yOffset + height * y})`}
-              />
-            )
-          })
-        )}
+        {settlers.map(([_x, _y]) => {
+          const x = _x // - NUM_UNITS_CENTER
+          const y = _y // - NUM_UNITS_CENTER
+          const yOffset = isEven(x) ? 0 : -yy
+          return (
+            <use
+              key={`${x}${y}`}
+              href='#gg'
+              transform={`translate(${xx * x}, ${yOffset + height * y})`}
+            />
+          )
+        })}
         {/* <use href='#gg' transform={`translate(-150, ${yy})`} />
-        <use href='#gg' transform={`translate(-150, ${-yy})`} />
-        <use href='#gg' transform={`translate(150, ${yy})`} />
-        <use href='#gg' transform={`translate(150, ${-yy})`} /> */}
+          <use href='#gg' transform={`translate(-150, ${-yy})`} />
+          <use href='#gg' transform={`translate(150, ${yy})`} />
+          <use href='#gg' transform={`translate(150, ${-yy})`} /> */}
       </svg>
     )
   }
