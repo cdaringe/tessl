@@ -5,7 +5,7 @@ import d3 = require('d3')
 
 type Props = {
   initialPoints: Point[]
-  onStateChange: OnStateChange
+  onStateChange?: OnStateChange
 } & React.SVGProps<SVGPathElement> &
   WithSvg
 

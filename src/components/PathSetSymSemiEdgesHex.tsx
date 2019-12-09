@@ -22,7 +22,10 @@ export function PathSetSymSemiEdgesHex ({
         <BasePath
           {...{
             id: 'node1',
-            initialPoints: initialPoints || [[-(length / 2), 0], [0, 0]],
+            initialPoints:
+              initialPoints && initialPoints.length > 1
+                ? initialPoints
+                : [[-(length / 2), 0], [0, 0]],
             svg,
             stroke: 'black',
             fill: 'none',

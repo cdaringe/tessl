@@ -2,46 +2,28 @@ import React from 'react'
 import { PathSetSymSemiEdgesHex } from './PathSetSymSemiEdgesHex'
 import { Point, OnStateChange, MetaNode } from '@dino-dna/d3-svg-path-editor'
 import debounce from 'lodash/debounce'
-import { range } from 'd3'
+import { DisplayConfig, SidecarProps } from './interfaces'
+import { RAD_THIRTY_DEG, RAD_SIXTY_DEG } from '../maths'
 
 type Props = {
-  onNodesChange?: (nodes: MetaNode[]) => void
+  displayConfig: DisplayConfig
+  length: number
+  onNodesChange: (nodes: MetaNode[]) => void
+  points: Point[]
+  renderNodeSideCar?: (opts: SidecarProps) => React.ReactElement<SVGElement>
 }
 type State = {
   ok: boolean
-  points?: Point[]
-  metaNodes?: MetaNode[]
 }
-
-const RAD_THIRTY_DEG = (Math.PI * 30) / 180
-const RAD_SIXTY_DEG = RAD_THIRTY_DEG * 2
-const NUM_UNITS = 8
-const NUM_UNITS_CENTER = Math.ceil(NUM_UNITS / 2)
-
-const units = range(NUM_UNITS).reduce(
-  (acc, x) => [...acc, ...range(NUM_UNITS).map(y => [x, y] as Point)],
-  [] as Point[]
-)
-
-const settlers: Point[] = [
-  ...(range(3).map(y => [-2, y - 1]) as Point[]),
-  ...(range(4).map(y => [-1, y - 1]) as Point[]),
-  ...(range(5)
-    .map(y => (y - 2 === 0 ? null : [0, y - 2]))
-    .filter(i => i) as Point[]),
-  ...(range(4).map(y => [1, y - 1]) as Point[]),
-  ...(range(3).map(y => [2, y - 1]) as Point[])
-]
 
 const isEven = (x: number) => x % 2 === 0
 
 export class TesselBoard extends React.PureComponent<Props, State> {
   private svgNode: React.RefObject<any>
-  private Viewer: any
   constructor (props: Props) {
     super(props)
     this.svgNode = React.createRef()
-    this.state = this.decodeQuery()
+    this.state = { ok: false }
   }
 
   componentDidMount () {
@@ -49,76 +31,18 @@ export class TesselBoard extends React.PureComponent<Props, State> {
     this.setState({ ok: true })
   }
 
-  decodeQuery: () => State = () => {
-    const defaultState: State = {
-      ok: false
-    }
-    const search = decodeURIComponent(window.location.search.replace(/^\?/, ''))
-    const fromQuery: Partial<State> = search
-      .split('&')
-      .map(kv => kv.split('='))
-      .reduce(
-        (acc, [key, value]) => {
-          if (key === 'points') {
-            const pairs = value.split(';')
-            if (pairs.length) {
-              acc.points = pairs.reduce(
-                (acc, cur) =>
-                  acc.concat([cur.split(',').map(i => parseFloat(i)) as Point]),
-                [] as Point[]
-              )
-            }
-          }
-          // acc[key] = value
-          return acc
-        },
-        {} as Partial<State>
-      )
-    return {
-      ...defaultState,
-      ...fromQuery
-    }
-  }
-
-  encodeQuery = () => {
-    if (!this.state.points) return ''
-    return (
-      '?' +
-      [
-        'points',
-        encodeURIComponent(
-          this.state.points.map(pair => pair.join(',')).join(';')
-        )
-      ].join('=')
-    )
-  }
-
   onNextPoints: OnStateChange = debounce(
     metaNodes => {
-      const points = metaNodes.map(mp =>
-        mp.point.map(i => parseFloat(i.toFixed(2)))
-      ) as Point[]
-      this.setState({ points, metaNodes })
-      if (this.props.onNodesChange) this.props.onNodesChange(metaNodes)
-      if (history.pushState) {
-        var newurl =
-          window.location.protocol +
-          '//' +
-          window.location.host +
-          window.location.pathname +
-          this.encodeQuery()
-        window.history.pushState({ path: newurl }, '', newurl)
-      }
+      this.props.onNodesChange(metaNodes)
     },
     50,
     { maxWait: 500 }
   )
 
   render () {
-    const length = 100
     const {
       onNextPoints,
-      state: { points }
+      props: { displayConfig, length, points, renderNodeSideCar }
     } = this
     const yy = length / 2 / Math.tan(RAD_THIRTY_DEG)
     const height = 2 * yy
@@ -136,22 +60,27 @@ export class TesselBoard extends React.PureComponent<Props, State> {
             }}
           />
         </g>
-        {settlers.map(([_x, _y]) => {
-          const x = _x // - NUM_UNITS_CENTER
-          const y = _y // - NUM_UNITS_CENTER
+        {displayConfig.shapeCoordinates.map(([x, y], pointIndex) => {
           const yOffset = isEven(x) ? 0 : -yy
           return (
-            <use
-              key={`${x}${y}`}
-              href='#gg'
-              transform={`translate(${xx * x}, ${yOffset + height * y})`}
-            />
+            <React.Fragment key={`${x}${y}`}>
+              <use
+                key={`${x}${y}_u`}
+                href='#gg'
+                transform={`translate(${xx * x}, ${yOffset + height * y})`}
+              />
+              {renderNodeSideCar
+                ? renderNodeSideCar({
+                  point: [x, y],
+                  pointIndex,
+                  cx: xx * x,
+                  cy: yOffset + height * y,
+                  key: `${x}${y}_c`
+                })
+                : null}
+            </React.Fragment>
           )
         })}
-        {/* <use href='#gg' transform={`translate(-150, ${yy})`} />
-          <use href='#gg' transform={`translate(-150, ${-yy})`} />
-          <use href='#gg' transform={`translate(150, ${yy})`} />
-          <use href='#gg' transform={`translate(150, ${-yy})`} /> */}
       </svg>
     )
   }

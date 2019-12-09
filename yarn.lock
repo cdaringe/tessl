@@ -697,9 +697,9 @@
     to-fast-properties "^2.0.0"
 
 "@dino-dna/d3-svg-path-editor@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@dino-dna/d3-svg-path-editor/-/d3-svg-path-editor-1.2.1.tgz#eec8cd5850cee22a8c221040ccf73be93389da1c"
-  integrity sha512-x7Qr+i5fXwcEheTwiFVof2aynvxWsV5j/LU4fG5Sl9zzS8Uv2k0q/bCTmaX9KwOw6UCzwlnW1MrfwUw8XX5+6w==
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@dino-dna/d3-svg-path-editor/-/d3-svg-path-editor-1.2.2.tgz#80b6ef12ec142c5ead255b9625d2e4a6f8f028b5"
+  integrity sha512-lMCkCETA1qvlYCTOES6S1l/IP1JJU9cKy7BmKhoyYA69g9UFFCGIsBeNn3qFssLCcUibaVbroxGhylpvP7yAIg==
 
 "@iarna/toml@^2.2.0":
   version "2.2.3"
