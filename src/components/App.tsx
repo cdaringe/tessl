@@ -88,13 +88,14 @@ export class App extends PureComponent<any, State> {
 
   decodeQuery: () => Partial<State> = () => {
     const search = decodeURIComponent(window.location.search.replace(/^\?/, ''))
-    const nextState = search
-      .split('&')
-      .map(kv => kv.split('='))
-      .filter(([key, value]) => key === 'state')
-      .map(([_, encodedState]) =>
-        JSON.parse(decodeURIComponent(encodedState))
-      )[0]
+    const nextState =
+      search
+        .split('&')
+        .map(kv => kv.split('='))
+        .filter(([key, value]) => key === 'state')
+        .map(([_, encodedState]) =>
+          JSON.parse(decodeURIComponent(encodedState))
+        )[0] || {}
     delete nextState.metaNodes
     return nextState
   }
@@ -161,8 +162,13 @@ export class App extends PureComponent<any, State> {
                   this.paintEdges()
                 }),
               onToggleLineMode: () => {
-                toggleLineMode(this.state.isCurvyLineMode)
-                getPathEditor().render()
+                this.setState(
+                  { isCurvyLineMode: !this.state.isCurvyLineMode },
+                  () => {
+                    toggleLineMode(this.state.isCurvyLineMode)
+                    getPathEditor().render()
+                  }
+                )
               },
               onTokenNumberColorChange: evt =>
                 this.setState({ tokenNumberColor: evt.currentTarget.value }),
