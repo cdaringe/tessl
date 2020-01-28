@@ -162,8 +162,13 @@ export class App extends PureComponent<any, State> {
                   this.paintEdges()
                 }),
               onToggleLineMode: () => {
-                toggleLineMode(this.state.isCurvyLineMode)
-                getPathEditor().render()
+                this.setState(
+                  { isCurvyLineMode: !this.state.isCurvyLineMode },
+                  () => {
+                    toggleLineMode(this.state.isCurvyLineMode)
+                    getPathEditor().render()
+                  }
+                )
               },
               onTokenNumberColorChange: evt =>
                 this.setState({ tokenNumberColor: evt.currentTarget.value }),

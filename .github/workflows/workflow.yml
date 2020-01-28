@@ -15,8 +15,8 @@ jobs:
         node-version: 12.x
     - name: install
       run: yarn
-    - name: format check
-      run: yarn format --check
+    # - name: format check
+    #   run: yarn format --check
     - name: lint
       run: yarn lint
     - name: build
