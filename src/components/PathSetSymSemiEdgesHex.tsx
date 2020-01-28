@@ -15,7 +15,7 @@ export function PathSetSymSemiEdgesHex ({
   initialPoints?: Point[]
 } & WithSvg &
   WithOnStateChange) {
-  const hexTranslator = `translate(${length} 0) rotate(-60 ${-length / 2} 0) `
+  const hexTransformer = `translate(${length} 0) rotate(-60 ${-length / 2} 0) `
   return (
     <>
       <g id='g1'>
@@ -49,7 +49,7 @@ export function PathSetSymSemiEdgesHex ({
             {...{
               id,
               href: '#g1',
-              transform: hexTranslator.repeat(i + 1)
+              transform: hexTransformer.repeat(i + 1)
             }}
           />
         )

@@ -4,6 +4,7 @@ import { Point, OnStateChange, MetaNode } from '@dino-dna/d3-svg-path-editor'
 import debounce from 'lodash/debounce'
 import { DisplayConfig, SidecarProps } from './interfaces'
 import { RAD_THIRTY_DEG, RAD_SIXTY_DEG } from '../maths'
+import { PathSetSimpleHex } from './PathSetSimpleHex'
 
 type Props = {
   displayConfig: DisplayConfig
@@ -45,8 +46,8 @@ export class TesselBoard extends React.PureComponent<Props, State> {
       props: { displayConfig, length, points, renderNodeSideCar }
     } = this
     const yy = length / 2 / Math.tan(RAD_THIRTY_DEG)
-    const height = 2 * yy
     const xx = length + length * Math.cos(RAD_SIXTY_DEG)
+    const height = 2 * yy
     return (
       <svg id='tesselboard' ref={this.svgNode} viewBox='-400 -400 800 800'>
         <g id='gg'>

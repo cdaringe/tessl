@@ -29,7 +29,7 @@ export function PathSetSimpleHex ({
             key={id}
             {...{
               id,
-              'xlink:href': '#node1',
+              xlinkHref: '#node1',
               transform: hexTranslator.repeat(i + 1)
             }}
           />

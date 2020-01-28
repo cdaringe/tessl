@@ -88,13 +88,14 @@ export class App extends PureComponent<any, State> {
 
   decodeQuery: () => Partial<State> = () => {
     const search = decodeURIComponent(window.location.search.replace(/^\?/, ''))
-    const nextState = search
-      .split('&')
-      .map(kv => kv.split('='))
-      .filter(([key, value]) => key === 'state')
-      .map(([_, encodedState]) =>
-        JSON.parse(decodeURIComponent(encodedState))
-      )[0]
+    const nextState =
+      search
+        .split('&')
+        .map(kv => kv.split('='))
+        .filter(([key, value]) => key === 'state')
+        .map(([_, encodedState]) =>
+          JSON.parse(decodeURIComponent(encodedState))
+        )[0] || {}
     delete nextState.metaNodes
     return nextState
   }
