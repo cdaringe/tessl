@@ -25,6 +25,7 @@ type State = {
   numRows: number
   points: Point[]
   isCurvyLineMode: boolean
+  isPurePathElements: boolean
   showControls: boolean
   tokenNumberColor: string
   tokenStartOffset: number
@@ -36,6 +37,7 @@ export class App extends PureComponent<any, State> {
       displayMode: 'grid',
       edgeColor: 'black',
       isCurvyLineMode: false,
+      isPurePathElements: false,
       length: 100,
       metaNodes: [],
       nodeSize: 1,
@@ -76,7 +78,7 @@ export class App extends PureComponent<any, State> {
   }
 
   updateUrlState = () => {
-    if (!history.pushState) return
+    if (!window.history.pushState) return
     var newurl =
       window.location.protocol +
       '//' +
@@ -120,12 +122,13 @@ export class App extends PureComponent<any, State> {
             this.state.displayMode === 'grid'
               ? grid
               : this.state.displayMode === 'gameboard'
-                ? gameboard
-                : {
+              ? gameboard
+              : {
                   ...gameboardProduction,
                   shapeCoordinates: getShapeCoordinates({ numRows, numColumns })
                 } // eslint-disable-line
           }
+          isPurePathElements={this.state.isPurePathElements}
           points={this.state.points}
           onNodesChange={this.onNodesChange}
           renderNodeSideCar={({ cy, cx, point, pointIndex, ...rest }) => (
@@ -170,6 +173,8 @@ export class App extends PureComponent<any, State> {
                   }
                 )
               },
+              onToggleUseElements: evt =>
+                this.setState({ isPurePathElements: !this.state.isPurePathElements }),
               onTokenNumberColorChange: evt =>
                 this.setState({ tokenNumberColor: evt.currentTarget.value }),
               onTokenOffsetChange: evt =>

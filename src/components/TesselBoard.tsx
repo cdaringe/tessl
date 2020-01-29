@@ -8,6 +8,7 @@ import { PathSetSimpleHex } from './PathSetSimpleHex'
 
 type Props = {
   displayConfig: DisplayConfig
+  isPurePathElements: boolean
   length: number
   onNodesChange: (nodes: MetaNode[]) => void
   points: Point[]
@@ -43,7 +44,7 @@ export class TesselBoard extends React.PureComponent<Props, State> {
   render () {
     const {
       onNextPoints,
-      props: { displayConfig, length, points, renderNodeSideCar }
+      props: { displayConfig, isPurePathElements, length, points, renderNodeSideCar }
     } = this
     const yy = length / 2 / Math.tan(RAD_THIRTY_DEG)
     const xx = length + length * Math.cos(RAD_SIXTY_DEG)
@@ -54,15 +55,27 @@ export class TesselBoard extends React.PureComponent<Props, State> {
           {/* <PathSetSimpleHex {...{ svg: this.svgNode.current!, length }} /> */}
           <PathSetSymSemiEdgesHex
             {...{
+              uuid: 0,
               svg: this.svgNode.current!,
               length,
               onStateChange: onNextPoints,
-              initialPoints: points
+              initialPoints: points,
+              isPurePathElements
             }}
           />
         </g>
         {displayConfig.shapeCoordinates.map(([x, y], pointIndex) => {
           const yOffset = isEven(x) ? 0 : -yy
+          let sidecar = null
+          if (renderNodeSideCar) {
+            sidecar = renderNodeSideCar({
+              point: [x, y],
+              pointIndex,
+              cx: xx * x,
+              cy: yOffset + height * y,
+              key: `${x}${y}_c`
+            })
+          }
           return (
             <React.Fragment key={`${x}${y}`}>
               <use
@@ -70,15 +83,7 @@ export class TesselBoard extends React.PureComponent<Props, State> {
                 href='#gg'
                 transform={`translate(${xx * x}, ${yOffset + height * y})`}
               />
-              {renderNodeSideCar
-                ? renderNodeSideCar({
-                  point: [x, y],
-                  pointIndex,
-                  cx: xx * x,
-                  cy: yOffset + height * y,
-                  key: `${x}${y}_c`
-                })
-                : null}
+              {sidecar}
             </React.Fragment>
           )
         })}

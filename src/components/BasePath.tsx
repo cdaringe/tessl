@@ -7,21 +7,19 @@ type Props = {
   initialPoints: Point[]
   onStateChange?: OnStateChange
 } & React.SVGProps<SVGPathElement> &
-  WithSvg
+  WithSvg & { forwardedRef: any }
 
 type State = {
   isPathLoaded: boolean
 }
-export class BasePath extends React.PureComponent<Props, State> {
-  private pathNode: React.RefObject<any>
+class BasePathBase extends React.PureComponent<Props, State> {
   constructor (props: Props) {
     super(props)
-    this.pathNode = React.createRef()
     this.state = { isPathLoaded: false }
   }
 
   componentDidUpdate () {
-    const { initialPoints, onStateChange, svg } = this.props
+    const { forwardedRef, initialPoints, onStateChange, svg } = this.props
     if (!svg || this.state.isPathLoaded) return
     this.setState({ isPathLoaded: true })
     const pathEditor = fromPoints({
@@ -30,7 +28,7 @@ export class BasePath extends React.PureComponent<Props, State> {
       onStateChange,
       points: initialPoints,
       svg$: d3.select(svg),
-      path$: d3.select(this.pathNode.current),
+      path$: d3.select(forwardedRef.current),
       transformLine: line => {
         return (window as any).__LINE_MODE_CURVY__
           ? line.curve(d3.curveCatmullRom.alpha(0.9))
@@ -45,8 +43,15 @@ export class BasePath extends React.PureComponent<Props, State> {
       initialPoints: _,
       onStateChange: __,
       svg: ___,
+      forwardedRef,
       ...rest
     } = this.props
-    return <path ref={this.pathNode} {...rest} />
+    return <path ref={forwardedRef} {...rest} />
   }
 }
+
+export const BasePath = React.forwardRef(
+  (props: Omit<Props, 'forwardedRef'>, ref) => (
+    <BasePathBase {...(props as any)} forwardedRef={ref} />
+  )
+)

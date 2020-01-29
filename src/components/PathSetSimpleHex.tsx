@@ -16,7 +16,10 @@ export function PathSetSimpleHex ({
       <BasePath
         {...{
           id: 'node1',
-          initialPoints: [[-(length / 2), 0], [length / 2, 0]],
+          initialPoints: [
+            [-(length / 2), 0],
+            [length / 2, 0]
+          ],
           svg,
           stroke: 'black',
           fill: 'none'

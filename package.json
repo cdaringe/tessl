@@ -11,10 +11,10 @@
     "@typescript-eslint/parser": "^2.8.0",
     "del-cli": "^3.0.0",
     "gh-pages": "^2.1.1",
-    "husky": "^3.1.0",
-    "lint-staged": "^9.4.3",
+    "husky": "^4",
+    "lint-staged": "^10",
     "parcel-bundler": "^1.12.4",
-    "prettier-standard": "^15.0.1",
+    "prettier-standard": "^16",
     "rollup": "^1.27.6",
     "rollup-plugin-typescript": "^1.0.1",
     "standardx": "^5.0.0",
@@ -39,8 +39,8 @@
   },
   "lint-staged": {
     "{src,test,scripts}/**/*.{js,jsx,ts,tsx}": [
-      "yarn format",
-      "yarn lint",
+      "prettier-standard",
+      "standardx",
       "git add"
     ]
   },
@@ -60,10 +60,17 @@
     ],
     "ignore": [
       "**/*.d.ts"
-    ]
+    ],
+    "eslintConfig": {
+      "rules": {
+        "indent": 0,
+        "react/jsx-indent": 0,
+        "react/jsx-indent-props": 0
+      }
+    }
   },
   "dependencies": {
-    "@dino-dna/d3-svg-path-editor": "^1.2.1",
+    "@dino-dna/d3-svg-path-editor": "^1.2.3",
     "d3": "^5.14.2",
     "lodash": ">=4",
     "react": "^16.12.0",

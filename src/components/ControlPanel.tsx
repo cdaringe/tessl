@@ -3,11 +3,11 @@ import { getPathEditor } from './hacks'
 import { DisplayMode, DISPLAYMODE } from './interfaces'
 const SvgSaver = require('svgsaver')
 
+const getBoardSvg = () => document.querySelector('#tesselboard')
 const onSave = () => {
   var svgsaver = new SvgSaver()
   getPathEditor().setNodeVisibility(false)
-  var svg = document.querySelector('#tesselboard')
-  svgsaver.asSvg(svg)
+  svgsaver.asSvg(getBoardSvg())
   getPathEditor().setNodeVisibility(true)
 }
 
@@ -25,6 +25,7 @@ export type Props = {
   onDisplayModeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
   onNodeSizeChange: (evt: any) => void
   onRowCountChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onToggleUseElements: (event: React.ChangeEvent<HTMLInputElement>) => void
   onTokenOffsetChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   tokenStartOffset: number
 }
@@ -41,6 +42,7 @@ export function ControlPanel ({
   onDisplayModeChange,
   onNodeSizeChange,
   onRowCountChange,
+  onToggleUseElements,
   onTokenOffsetChange,
   tokenNumberColor,
   tokenStartOffset
@@ -68,12 +70,6 @@ export function ControlPanel ({
         onChange={onNodeSizeChange}
       />
       <br />
-      <button
-        id='save-board'
-        type='button'
-        children='save svg'
-        onClick={onSave}
-      />
       <button
         id='hide-nodes'
         type='button'
@@ -161,6 +157,14 @@ export function ControlPanel ({
                 type='color'
                 value={tokenNumberColor}
                 onChange={onTokenNumberColorChange}
+              />,
+            ],
+            [
+              <label htmlFor="preview-save-board">{'no <use /> elements'}</label>,
+              <input
+                type='checkbox'
+                id='preview-save-board'
+                onClick={onToggleUseElements}
               />
             ]
           ].map((rowData, i) => (
@@ -173,6 +177,17 @@ export function ControlPanel ({
           ))}
         </tbody>
       </table>
+      <div>
+        <span  style={{float: 'right'}}>
+        <button
+          style={{float: 'right'}}
+          id='save-board'
+          type='button'
+          children='save svg'
+          onClick={onSave}
+        />
+        </span>
+      </div>
     </div>
   )
 }

@@ -7,3 +7,4 @@ bundle.test.js
 src/**/*.js
 test/**/*.js
 todo.md
+demo/**/*.js
